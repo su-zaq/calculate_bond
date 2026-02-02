@@ -452,41 +452,13 @@
                     <div class="tab3_form_label" id="radio-grid1">
                         <label class="tab3_form_label_1" for="radio-grid1">生徒:</label>
                     </div>
-                    <div class="tab3_form_content">
-                        <select class="student-name" name="student-name" id="select-student-name1" onchange="changeStudentsList(1)">
-                            <option value="default" selected>生徒を選んでください</option>
-                        </select>
+                    <div class="tab3_form_content" id="tab4-student-controls">
+                        <label for="input-tab4-student-count">表示人数:</label>
+                        <input type="number" min="1" max="50" inputmode="decimal" id="input-tab4-student-count" name="input-tab4-student-count" value="5" onfocus="this.select();" oninput="javascript: this.value = this.value.slice(0, 2);">
+                        <button type="button" onclick="setTab4StudentCountFromInput()">反映</button>
                     </div>
-                    <div id="student1">
-                    </div>           
-                    <div class="tab3_form_content">
-                        <select class="student-name" name="student-name" id="select-student-name2" onchange="changeStudentsList(2)">
-                            <option value="default" selected>生徒を選んでください</option>
-                        </select>
+                    <div id="tab4-students">
                     </div>
-                    <div id="student2">
-                    </div>           
-                    <div class="tab3_form_content">
-                        <select class="student-name" name="student-name" id="select-student-name3" onchange="changeStudentsList(3)">
-                            <option value="default" selected>生徒を選んでください</option>
-                        </select>
-                    </div>
-                    <div id="student3">
-                    </div>           
-                    <div class="tab3_form_content">
-                        <select class="student-name" name="student-name" id="select-student-name4" onchange="changeStudentsList(4)">
-                            <option value="default" selected>生徒を選んでください</option>
-                        </select>
-                    </div>
-                    <div id="student4">
-                    </div>           
-                    <div class="tab3_form_content">
-                        <select class="student-name" name="student-name" id="select-student-name5" onchange="changeStudentsList(5)">
-                            <option value="default" selected>生徒を選んでください</option>
-                        </select>
-                    </div>
-                    <div id="student5">
-                    </div>           
                 </form>
                 <section class="result">
                     <p id="result-display-tab3">以下の贈り物を製造素材にしてください。</p>

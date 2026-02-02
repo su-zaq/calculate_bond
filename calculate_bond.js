@@ -7,6 +7,7 @@ var studentImgPathList = [];
 const TEMP_IMG_PATH = "./img/peroro.png";
 const ORANGE_GIFT_INDEX_MIN = 1;
 const ORANGE_GIFT_INDEX_MAX = 36;
+const TAB4_STUDENT_COUNT_DEFAULT = 5;
 
 function openTab(evt, tabName) {
     selectedTab = tabName
@@ -141,48 +142,33 @@ function parseStudentImgPathCSV(data) {
 }
 
 function addStudentsList() {
-    const list1 = document.getElementById("select-student-name1");
-    const list2 = document.getElementById("select-student-name2");
-    const list3 = document.getElementById("select-student-name3");
-    const list4 = document.getElementById("select-student-name4");
-    const list5 = document.getElementById("select-student-name5");
     const list_tab1 = document.getElementById("select-student-name-tab1");
-    
-    if (giftCompatibilityList.length > 0) {
-        for (let i = 1; i < giftCompatibilityList.length; i++) {
-            // 下記の newOptionX を1つにまとめると、最後に add したものだけ有効になる
-            const newOption1 = document.createElement("option");
-            studentName = giftCompatibilityList[i].split(',')[0]
-            newOption1.value = String(i);
-            newOption1.text = studentName;
-            list1.add(newOption1);
-            const newOption2 = document.createElement("option");
-            studentName = giftCompatibilityList[i].split(',')[0]
-            newOption2.value = String(i);
-            newOption2.text = studentName;
-            list2.add(newOption2);
-            const newOption3 = document.createElement("option");
-            studentName = giftCompatibilityList[i].split(',')[0]
-            newOption3.value = String(i);
-            newOption3.text = studentName;
-            list3.add(newOption3);
-            const newOption4 = document.createElement("option");
-            studentName = giftCompatibilityList[i].split(',')[0]
-            newOption4.value = String(i);
-            newOption4.text = studentName;
-            list4.add(newOption4);
-            const newOption5 = document.createElement("option");
-            studentName = giftCompatibilityList[i].split(',')[0]
-            newOption5.value = String(i);
-            newOption5.text = studentName;
-            list5.add(newOption5);
-            const newOption_tab1 = document.createElement("option");
-            studentName = giftCompatibilityList[i].split(',')[0]
-            newOption_tab1.value = String(i);
-            newOption_tab1.text = studentName;
-            list_tab1.add(newOption_tab1);
+    const tab4Lists = document.querySelectorAll("#student-gift-type_form select.student-name-tab4");
+
+    const populateStudentSelect = (selectEl) => {
+        if (!selectEl) return;
+
+        // 先頭の「生徒を選んでください」以外は削除してから詰め直す（重複防止）
+        while (selectEl.options.length > 1) {
+            selectEl.remove(1);
         }
-    }
+
+        if (giftCompatibilityList.length <= 0) return;
+
+        for (let i = 1; i < giftCompatibilityList.length; i++) {
+            const newOption = document.createElement("option");
+            const studentName = giftCompatibilityList[i].split(',')[0];
+            newOption.value = String(i);
+            newOption.text = studentName;
+            selectEl.add(newOption);
+        }
+    };
+    
+    // tab1（詳細）
+    populateStudentSelect(list_tab1);
+
+    // tab4（任意人数）
+    tab4Lists.forEach(populateStudentSelect);
 }
 
 function addGiftImgTable(listNum, giftCompatibility, student) {
@@ -301,33 +287,26 @@ function createStudentGiftTable(giftCompatibility) {
 }
 
 function setAvailableGifts() {
-    const select1 = document.getElementById("select-student-name1")
-    const select2 = document.getElementById("select-student-name2")
-    const select3 = document.getElementById("select-student-name3")
-    const select4 = document.getElementById("select-student-name4")
-    const select5 = document.getElementById("select-student-name5")
+    // 既存表示をクリア（重複防止）
+    const result = document.getElementById("available-gift");
+    if (result) result.innerHTML = '';
 
-    // 選択した要素のテキストを取得する処理
-    const select1Num = select1.selectedIndex;
-    const student1Name = select1.options[select1Num].innerText;
-    const select2Num = select2.selectedIndex;
-    const student2Name = select2.options[select2Num].innerText;
-    const select3Num = select3.selectedIndex;
-    const student3Name = select3.options[select3Num].innerText;
-    const select4Num = select4.selectedIndex;
-    const student4Name = select4.options[select4Num].innerText;
-    const select5Num = select5.selectedIndex;
-    const student5Name = select5.options[select5Num].innerText;
+    const tab4Selects = document.querySelectorAll("#student-gift-type_form select.student-name-tab4");
+    const selectedStudentNames = new Set();
+    tab4Selects.forEach((selectEl) => {
+        if (!selectEl) return;
+        if (selectEl.value === "default") return;
+        const idx = selectEl.selectedIndex;
+        const name = selectEl.options[idx]?.innerText;
+        if (name) selectedStudentNames.add(name);
+    });
+
+    const selectedNamesArray = Array.from(selectedStudentNames);
 
     var selecttedStudentGiftList = []
     for (let i=1; i<giftCompatibilityList.length; i++) {
         var tempStudentName = giftCompatibilityList[i].split(',')[0]
-        if (tempStudentName == student1Name ||
-            tempStudentName == student2Name ||
-            tempStudentName == student3Name ||
-            tempStudentName == student4Name ||
-            tempStudentName == student5Name
-        ) {
+        if (selectedNamesArray.includes(tempStudentName)) {
             selecttedStudentGiftList.push(giftCompatibilityList[i].split('\r')[0].split(','));
         }
     }
@@ -353,6 +332,70 @@ function setAvailableGifts() {
         }
     }
     setAvailableGiftsImg(availableGiftsIdxList);
+}
+
+function createTab4StudentRow(rowNum) {
+    const wrapper = document.createElement("div");
+    wrapper.setAttribute("class", "tab4-student-row");
+
+    const selectArea = document.createElement("div");
+    selectArea.setAttribute("class", "tab3_form_content");
+
+    const select = document.createElement("select");
+    select.setAttribute("class", "student-name student-name-tab4");
+    select.setAttribute("name", "student-name");
+    select.setAttribute("id", "select-student-name" + String(rowNum));
+    select.setAttribute("onchange", "changeStudentsList(" + String(rowNum) + ")");
+
+    const defaultOption = document.createElement("option");
+    defaultOption.value = "default";
+    defaultOption.selected = true;
+    defaultOption.text = "生徒を選んでください";
+    select.add(defaultOption);
+
+    // すでにCSV読み込み済みならここで埋める（未読なら parseGiftCSV -> addStudentsList() で埋まる）
+    if (giftCompatibilityList.length > 0) {
+        for (let i = 1; i < giftCompatibilityList.length; i++) {
+            const opt = document.createElement("option");
+            opt.value = String(i);
+            opt.text = giftCompatibilityList[i].split(',')[0];
+            select.add(opt);
+        }
+    }
+
+    selectArea.appendChild(select);
+
+    const tableArea = document.createElement("div");
+    tableArea.setAttribute("id", "student" + String(rowNum));
+
+    wrapper.appendChild(selectArea);
+    wrapper.appendChild(tableArea);
+    return wrapper;
+}
+
+function setTab4StudentCount(count) {
+    const container = document.getElementById("tab4-students");
+    if (!container) return;
+
+    const safeCount = Math.max(1, Math.min(50, Number(count) || 1));
+    container.innerHTML = '';
+
+    // 表示領域もリセット
+    const result = document.getElementById("available-gift");
+    if (result) result.innerHTML = '';
+
+    for (let i = 1; i <= safeCount; i++) {
+        container.appendChild(createTab4StudentRow(i));
+    }
+}
+
+function setTab4StudentCountFromInput() {
+    const input = document.getElementById("input-tab4-student-count");
+    const value = input ? input.value : TAB4_STUDENT_COUNT_DEFAULT;
+    setTab4StudentCount(value);
+
+    // 人数反映直後に選択状況に応じて再計算（全員defaultなら何も出ない）
+    setAvailableGifts();
 }
 
 function setAvailableGiftsImg(availableGiftsIdxList) {
@@ -444,6 +487,8 @@ function changeImageIfExists(className, newImgPath) {
 // 初期状態で最初のタブを開く
 document.addEventListener("DOMContentLoaded", function() {
     document.querySelector(".tab").click();
+    // tab4 を初期人数で生成（CSV読み込みより先でもOK：後で addStudentsList() が選択肢を投入する）
+    setTab4StudentCount(TAB4_STUDENT_COUNT_DEFAULT);
     fetch('blue_archive_gift.csv').then(response => response.text()).then(data => parseGiftCSV(data));
     fetch('blue_archive_gift_img_path.csv').then(response => response.text()).then(data => parseGiftImgPathCSV(data));
     fetch('blue_archive_student_img_path.csv').then(response => response.text()).then(data => parseStudentImgPathCSV(data));
